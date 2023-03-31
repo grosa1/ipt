@@ -1,0 +1,89 @@
+= リリースノート
+
+*IPTバージョン: pass:[2.5.*, 2.6.*, 2.7.*]*
+
+== アップグレード方法
+
+WARNING: アップグレードを行う前に、必ず*IPTのデータディレクトリをバックアップしてください*。xref:data-hosting-centres.adoc#data-hosting-centre-criteria[データホスティングセンター基準]に従って、IPTデータディレクトリの定期バックアップを実行することが一般に強く推奨されます。
+
+CAUTION: IPT を 2.5.5 以前から 2.5.6 以降にアップグレードすると、IPT の設定ファイルの変更により、以前のバージョンにダウングレードすることができなくなります。
+
+お使いのシステムがこのリリースのインストール要件を満たすことを確認すること。OSおよびその他のインストール済みソフトウェア（Java、Tomcat、Apache HTTPDなど）が、セキュリティパッチを適用した最新の状態であることを確認してください。
+
+アップグレードの方法は、元の xref:installation.adoc#installation-method[インストール方法] によって異なります。
+
+=== Linuxパッケージによるアップグレード
+
+Red Hat、CentOS、Debian、UbuntuなどのLinuxパッケージのユーザーは、システムのパッケージマネージャーを使用してアップグレードすることができます。
+
+[source, shell]
+----
+# Red Hat, CentOS etc:
+yum update ipt
+# Debian, Ubuntu etc:
+apt install ipt
+----
+
+これらのコマンドは、Red Hat・CentOS 上でプレリリースバージョンをテストするために使用することができます。
+
+[source, shell]
+----
+# Ensure the GBIF repository configuration is up-to-date:
+yum-config-manager --add-repo https://packages.gbif.org/gbif.repo
+
+# Install the latest pre-release/testing version:
+yum install --enablerepo=gbif-testing ipt
+
+# Roll back to a previous, stable version:
+yum downgrade ipt-2.4.2
+
+# Show all available versions, testing and stable:
+yum --showduplicates list --enablerepo=gbif-testing ipt
+----
+
+
+=== サーブレットコンテナを利用したアップグレード
+
+TIP: バージョン2.5.0以降にアップグレードする場合、インストール手順の xref:installation.adoc#tomcat[ステップ2] に従って、データディレクトリの場所を設定してください。IPTをアップグレードするたびにデータディレクトリを設定しなおす必要がなくなります。
+
+アップグレードは、4ステップで行うことができます。
+
+. 既存のデータディレクトリと、以前にIPTに適用したカスタムスタイル（画像、スタイルシートなど）をバックアップします。
+. Tomcatをシャットダウンせずに、以前の.warファイルを最新版に置き換えますが、名前は同じにします（例：`ipt.war`）。
++
+NOTE: Tomcatの停止中に.warファイルを置き換える場合、Tomcatの再起動時に更新されたWARファイルが再展開されるように、Tomcatの再起動前に関連する展開ディレクトリを必ず削除してください。
+
+. （Tomcat内にデータディレクトリが設定されていない場合）すぐにWebブラウザでIPTを開き、IPTの初期設定ページで既存のデータディレクトリを再利用してください。
+. アップグレードがうまくいったことを確認するために、ログインして、フッターに新しいバージョン番号が表示されていることを確認します。（_以前のバージョンがまだ表示されている場合は、Tomcatを再起動してください。_）
+. （必要であれば）カスタムスタイルを再適用します。
+
+=== Dockerを使ったアップグレード
+
+xref:installation.adoc#installation-using-docker[Dockerを使用したインストール方法] をご覧ください。一般的に、`latest`タグは現在の安定したリリースを指します。
+
+== アップグレード後の注意事項
+
+アップグレード後、一部のリソースの読み込みに失敗したことを示す警告メッセージが表示されることがあります。これは、長い間再公開されなかった古いリソースに必要なメタデータが欠落している場合に発生します。リソース管理者は、該当するリソースを再公開することでこの問題を解決できます。
+
+IPT 2.3.xの新機能は、サンプルベースのデータの公開です。アップグレードが完了したら、IPT管理者はダーウィンコア・イベントコアをインストールする必要があります。ダーウィンコア・イベントコアは、新しいインストールでデフォルトでインストールされることに注意してください。
+
+さらに、IPT管理者はインストールされているすべてのコアと拡張機能を最新バージョンに更新する必要があります。これにより、公開者は最新バージョンに含まれる新しい用語や語彙を利用することができます。
+
+== 本リリースにおける重要な変更点
+
+新機能の全リストは、xref:releases.adoc[リリース] ページに記載されています。アップグレード後は、特に以下の点にご注意ください。
+
+* IPT 2.5.6 では、ユーザーパスワードの保存方法が変更され、セキュリティが向上しました。IPT をバージョン 2.5.6（またはそれ以降）にアップグレードした後は、ダウングレードすることはできません。
+* IPT 2.5.2 には、メタデータ編集のバグ修正が含まれています。2.5.0や2.5.1ではなく、このバージョンを使用してください。
+* IPT 2.5.1は、データベースソースへの接続に関するバグ修正を含みますが、それ以外はバージョン2.5.0と同じです。
+* IPT 2.5.0には、MySQL、PostgreSQL、MS SQL Server、Sybase、Oracle 用のデータベースコネクタ（JDBC ライブラリ）のアップグレードが含まれています。お手持ちのデータベースが正常に動作することをご確認ください。
+* IPT 2.5.0では、メインメニューからアクセスできる、管理責任者のみがアクセスできる完全な詳細を含むトラブルシューティングページが追加されました。
+* IPT 2.5.0は、サーブレットコンテナからデータディレクトリの場所を読み取ることができるようになりました（インストール手順 xref:installation.adoc#tomcat[ステップ2]を参照）。
+* IPT 2.5.0は、Microsoft Internet Explorerをサポートしなくなりました。（Microsoft社は、MS365オンラインサービスのために link: https://blogs.windows.com/windowsexperience/2021/05/19/the-future-of-internet-explorer-on-windows-10-is-in-microsoft-edge/[MSIEをサポートしなくなりました]）。
+* ドキュメントはこの新しい場所に移動しました。古いGitHub Wikiからリンクされています。
+
+2.4以前のバージョンからアップグレードする場合は、xref:2.4@release-notes.adoc[古いリリースノート]も参照してください。
+
+== 他に方法がない場合
+
+有用な質問で更新されている xref:faq.adoc[FAQ] を見るか、link:https://lists.gbif.org/mailman/listinfo/ipt/[IPTメーリングリスト]に質問してみてください。
